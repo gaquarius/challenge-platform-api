@@ -1,7 +1,6 @@
-// +heroku goVersion go1.15
-
 module github.com/gaquarius/challenge-platform-api
 
+// +heroku goVersion go1.15
 go 1.15
 
 require (
