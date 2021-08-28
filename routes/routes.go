@@ -3,9 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/gaquarius/challenge-platform-api/controllers"
 	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
+	"github.com/gorilla/mux"
 )
 
 // Routes -> define endpoints
