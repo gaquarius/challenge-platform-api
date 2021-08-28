@@ -1,15 +1,15 @@
 # Go-Mongodb-REST-boilerplate
 
 
-![Build](https://github.com/umangraval/Go-Mongodb-REST-boilerplate/workflows/Go/badge.svg)
+![Build](https://github.com/gaquarius/challenge-platform-api/workflows/Go/badge.svg)
 
 
 This repo can be used as a starting point for backend development with Golang. It comes bundled with Docker. The development environment uses `docker-compose` to start dependent services like mongo.
 
 A few things to note in the project:
-* **[Github Actions Workflows](https://github.com/umangraval/Go-Mongodb-REST-boilerplate/tree/main/.github/workflows)** - Pre-configured Github Actions to run automated builds and publish image to Github Packages
-* **[Dockerfile](https://github.com/umangraval/Go-Mongodb-REST-boilerplate/blob/main/Dockerfile)** - Dockerfile to generate docker builds.
-* **[docker-compose](https://github.com/umangraval/Go-Mongodb-REST-boilerplate/blob/main/docker-compose.yml)** - Docker compose script to start service in production mode.
+* **[Github Actions Workflows](https://github.com/gaquarius/challenge-platform-api/tree/main/.github/workflows)** - Pre-configured Github Actions to run automated builds and publish image to Github Packages
+* **[Dockerfile](https://github.com/gaquarius/challenge-platform-api/blob/main/Dockerfile)** - Dockerfile to generate docker builds.
+* **[docker-compose](https://github.com/gaquarius/challenge-platform-api/blob/main/docker-compose.yml)** - Docker compose script to start service in production mode.
 * **[Containerized Mongo for development](#development)** - Starts a local mongo container with data persistence across runs.
 * **[Mongo Driver](https://go.mongodb.org/mongo-driver)** - MongoDB supported driver for Go.
 * **[Gorilla Mux](https://go.mongodb.org/mongo-driver)** - HTTP request multiplexer.

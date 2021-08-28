@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/umangraval/Go-Mongodb-REST-boilerplate/db"
-	middlewares "github.com/umangraval/Go-Mongodb-REST-boilerplate/handlers"
-	"github.com/umangraval/Go-Mongodb-REST-boilerplate/models"
-	"github.com/umangraval/Go-Mongodb-REST-boilerplate/validators"
+	"github.com/gaquarius/challenge-platform-api/db"
+	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
+	"github.com/gaquarius/challenge-platform-api/models"
+	"github.com/gaquarius/challenge-platform-api/validators"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

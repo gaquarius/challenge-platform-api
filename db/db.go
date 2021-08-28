@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
-	middlewares "github.com/umangraval/Go-Mongodb-REST-boilerplate/handlers"
+	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

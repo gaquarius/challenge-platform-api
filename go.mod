@@ -1,4 +1,4 @@
-module github.com/umangraval/Go-Mongodb-REST-boilerplate
+module github.com/gaquarius/challenge-platform-api
 
 go 1.15
 

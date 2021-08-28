@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/umangraval/Go-Mongodb-REST-boilerplate/controllers"
-	middlewares "github.com/umangraval/Go-Mongodb-REST-boilerplate/handlers"
+	"github.com/gaquarius/challenge-platform-api/controllers"
+	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 )
 
 // Routes -> define endpoints

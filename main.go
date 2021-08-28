@@ -7,8 +7,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/rs/cors"
-	middlewares "github.com/umangraval/Go-Mongodb-REST-boilerplate/handlers"
-	"github.com/umangraval/Go-Mongodb-REST-boilerplate/routes"
+	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
+	"github.com/gaquarius/challenge-platform-api/routes"
 )
 
 func hello(w http.ResponseWriter, req *http.Request) {

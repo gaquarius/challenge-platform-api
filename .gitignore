@@ -21,3 +21,6 @@ uploaded/*
 
 # Dependency directories (remove the comment below to include it)
 vendor/
+
+# MongoDB volume for docker
+data/
