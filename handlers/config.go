@@ -15,7 +15,7 @@ func DotEnvVariable(key string) string {
 	wd, _ := os.Getwd()
 	log.Println(path.Join(wd, "/.env"))
 
-	err := godotenv.Load(path.Join(wd, "/.env"))
+	err := godotenv.Load()
 
 	if err != nil {
 		log.Printf("Error loading .env file")
