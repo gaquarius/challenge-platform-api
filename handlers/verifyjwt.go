@@ -36,15 +36,21 @@ func IsAuthorized(next http.Handler) http.HandlerFunc {
 	})
 }
 
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
+
 // GenerateJWT -> generate jwt
-func GenerateJWT() (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
+func GenerateJWT(username string) (string, error) {
+	claims := &Claims{
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(2 * time.Hour).Unix(),
+		},
+	}
 
-	claims := token.Claims.(jwt.MapClaims)
-
-	claims["authorized"] = true
-	claims["client"] = "Elliot Forbes"
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(mySigningKey)
 

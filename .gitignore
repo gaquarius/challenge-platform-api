@@ -24,3 +24,6 @@ vendor/
 
 # MongoDB volume for docker
 data/
+
+# Jetbrains product
+.idea/

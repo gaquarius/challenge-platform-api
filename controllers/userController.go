@@ -9,25 +9,78 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/gaquarius/challenge-platform-api/db"
 	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 	"github.com/gaquarius/challenge-platform-api/models"
 	"github.com/gaquarius/challenge-platform-api/validators"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var client = db.Dbconnect()
 
-// Auths -> get token
-var Auths = http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-	validToken, err := middlewares.GenerateJWT()
+// RegisterUser -> Register User with Menmonic and username
+var RegisterUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		middlewares.ErrorResponse("Failed to generate token", response)
+		middlewares.ServerErrResponse(err.Error(), w)
+		return
 	}
+	collection := client.Database("challenge").Collection("users")
+	var existingUser models.User
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	if err == nil {
+		middlewares.ErrorResponse("Username is already taken.", w)
+		return
+	}
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "identity", Value: user.Identity}}).Decode(&existingUser)
+	if err == nil {
+		middlewares.ErrorResponse("Identity is already in use.", w)
+		return
+	}
+	passwordHash, err := middlewares.HashPassword(user.Password)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), w)
+		return
+	}
+	user.Password = passwordHash
+	result, err := collection.InsertOne(r.Context(), user)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), w)
+		return
+	}
+	res, _ := json.Marshal(result.InsertedID)
+	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), w)
+})
 
-	middlewares.SuccessResponse(string(validToken), response)
+// LoginUser -> Let the user login with identity and password
+var LoginUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), w)
+		return
+	}
+	collection := client.Database("challenge").Collection("users")
+	var existingUser models.User
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	if err != nil {
+		middlewares.ErrorResponse("User doesn't exist", w)
+		return
+	}
+	isPasswordMatch := middlewares.CheckPasswordHash(user.Password, existingUser.Password)
+	if !isPasswordMatch {
+		middlewares.ErrorResponse("Password doesn't match", w)
+		return
+	}
+	token, err := middlewares.GenerateJWT(user.Username)
+	if err != nil {
+		middlewares.ErrorResponse("Failed to generate JWT", w)
+		return
+	}
+	middlewares.SuccessResponse(string(token), w)
 })
 
 // CreatePersonEndpoint -> create person
