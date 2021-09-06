@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gaquarius/challenge-platform-api/db"
 	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 	"github.com/gaquarius/challenge-platform-api/models"
@@ -81,6 +82,37 @@ var LoginUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	middlewares.SuccessResponse(string(token), w)
+})
+
+// GetMe -> Get user details from Authorization token
+var GetMe = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	props, _ := r.Context().Value("props").(jwt.MapClaims)
+	var user models.User
+	collection := client.Database("challenge").Collection("users")
+	err := collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: props["username"]}}).Decode(&user)
+	if err != nil {
+		middlewares.AuthorizationResponse("Malformed token", w)
+		return
+	}
+
+	user.Password = ""
+	middlewares.SuccessRespond(user, w)
+})
+
+// GetUser -> Get user details from username
+var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var user models.User
+
+	collection := client.Database("challenge").Collection("users")
+	err := collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: params["username"]}}).Decode(&user)
+	if err != nil {
+		middlewares.ErrorResponse("User doesn't exist", w)
+		return
+	}
+
+	user.Password = ""
+	middlewares.SuccessRespond(user, w)
 })
 
 // CreatePersonEndpoint -> create person

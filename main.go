@@ -1,19 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/fatih/color"
-	"github.com/rs/cors"
 	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 	"github.com/gaquarius/challenge-platform-api/routes"
+	"github.com/rs/cors"
 )
-
-func hello(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "hello\n")
-}
 
 func main() {
 	port := middlewares.DotEnvVariable("PORT")

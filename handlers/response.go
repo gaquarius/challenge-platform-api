@@ -42,12 +42,12 @@ func SuccessArrRespond(fields []*models.Person, writer http.ResponseWriter) {
 }
 
 // SuccessRespond -> response formatter
-func SuccessRespond(fields models.Person, writer http.ResponseWriter) {
+func SuccessRespond(fields interface{}, writer http.ResponseWriter) {
 	_, err := json.Marshal(fields)
 	type data struct {
-		Person     models.Person `json:"data"`
-		Statuscode int           `json:"status"`
-		Message    string        `json:"msg"`
+		Person     interface{} `json:"data"`
+		Statuscode int         `json:"status"`
+		Message    string      `json:"msg"`
 	}
 	temp := &data{Person: fields, Statuscode: 200, Message: "success"}
 	if err != nil {
