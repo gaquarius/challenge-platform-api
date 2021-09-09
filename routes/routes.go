@@ -11,7 +11,11 @@ import (
 // Routes -> define endpoints
 func Routes() *mux.Router {
 	router := mux.NewRouter()
-	api := router.PathPrefix("/api").Subrouter()
+
+	api := router.PathPrefix("/api/v1").Subrouter()
+
+	// User API routes
+
 	user := api.PathPrefix("/user").Subrouter()
 	user.HandleFunc("/register", controllers.RegisterUser).Methods("POST")
 	user.HandleFunc("/login", controllers.LoginUser).Methods("POST")
@@ -19,11 +23,18 @@ func Routes() *mux.Router {
 	user.HandleFunc("/me", middlewares.IsAuthorized(controllers.UpdateUser)).Methods("PUT")
 	user.HandleFunc("/{username}", controllers.GetUser).Methods("GET")
 
+	// Challenge API routes
+
+	challenge := api.PathPrefix("/challenge").Subrouter()
+	challenge.HandleFunc("/", middlewares.IsAuthorized(controllers.ListChallenge)).Methods("GET")
+	challenge.HandleFunc("/", middlewares.IsAuthorized(controllers.CreateChallenge)).Methods("POST")
+
 	api.HandleFunc("/person", controllers.CreatePersonEndpoint).Methods("POST")
 	api.HandleFunc("/people", middlewares.IsAuthorized(controllers.GetPeopleEndpoint)).Methods("GET")
 	api.HandleFunc("/person/{id}", controllers.GetPersonEndpoint).Methods("GET")
 	api.HandleFunc("/person/{id}", controllers.DeletePersonEndpoint).Methods("DELETE")
 	api.HandleFunc("/person/{id}", controllers.UpdatePersonEndpoint).Methods("PUT")
+
 	router.HandleFunc("/upload", controllers.UploadFileEndpoint).Methods("POST")
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./uploaded/"))))
 	return router

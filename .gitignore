@@ -5,6 +5,7 @@
 *.so
 *.dylib
 main
+gin-bin
 
 .env
 

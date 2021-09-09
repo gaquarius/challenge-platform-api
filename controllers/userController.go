@@ -22,115 +22,115 @@ import (
 var client = db.Dbconnect()
 
 // RegisterUser -> Register User with Menmonic and username
-var RegisterUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), w)
+		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
 	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
 	if err == nil {
-		middlewares.ErrorResponse("Username is already taken.", w)
+		middlewares.ErrorResponse("Username is already taken.", rw)
 		return
 	}
 	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "identity", Value: user.Identity}}).Decode(&existingUser)
 	if err == nil {
-		middlewares.ErrorResponse("Identity is already in use.", w)
+		middlewares.ErrorResponse("Identity is already in use.", rw)
 		return
 	}
 	passwordHash, err := middlewares.HashPassword(user.Password)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), w)
+		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 	user.Password = passwordHash
 	result, err := collection.InsertOne(r.Context(), user)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), w)
+		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 	res, _ := json.Marshal(result.InsertedID)
-	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), w)
+	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), rw)
 })
 
 // LoginUser -> Let the user login with identity and password
-var LoginUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var LoginUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), w)
+		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
 	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
 	if err != nil {
-		middlewares.ErrorResponse("User doesn't exist", w)
+		middlewares.ErrorResponse("User doesn't exist", rw)
 		return
 	}
 	isPasswordMatch := middlewares.CheckPasswordHash(user.Password, existingUser.Password)
 	if !isPasswordMatch {
-		middlewares.ErrorResponse("Password doesn't match", w)
+		middlewares.ErrorResponse("Password doesn't match", rw)
 		return
 	}
 	token, err := middlewares.GenerateJWT(user.Username)
 	if err != nil {
-		middlewares.ErrorResponse("Failed to generate JWT", w)
+		middlewares.ErrorResponse("Failed to generate JWT", rw)
 		return
 	}
-	middlewares.SuccessResponse(string(token), w)
+	middlewares.SuccessResponse(string(token), rw)
 })
 
 // GetMe -> Get user details from Authorization token
-var GetMe = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var GetMe = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	var user models.User
 	collection := client.Database("challenge").Collection("users")
 	err := collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: props["username"]}}).Decode(&user)
 	if err != nil {
-		middlewares.AuthorizationResponse("Malformed token", w)
+		middlewares.AuthorizationResponse("Malformed token", rw)
 		return
 	}
 
 	user.Password = ""
-	middlewares.SuccessRespond(user, w)
+	middlewares.SuccessRespond(user, rw)
 })
 
 // GetUser -> Get user details from username
-var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var GetUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var user models.User
 
 	collection := client.Database("challenge").Collection("users")
 	err := collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: params["username"]}}).Decode(&user)
 	if err != nil {
-		middlewares.ErrorResponse("User doesn't exist", w)
+		middlewares.ErrorResponse("User doesn't exist", rw)
 		return
 	}
 
 	user.Password = ""
-	middlewares.SuccessRespond(user, w)
+	middlewares.SuccessRespond(user, rw)
 })
 
 // UpdateUser -> Update user details from username
-var UpdateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var UpdateUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	var user models.User
 
 	collection := client.Database("challenge").Collection("users")
 	err := collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: props["username"]}}).Decode(&user)
 	if err != nil {
-		middlewares.AuthorizationResponse("Malformed token", w)
+		middlewares.AuthorizationResponse("Malformed token", rw)
 		return
 	}
 
 	var newUser models.User
 	err = json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), w)
+		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 
@@ -145,20 +145,20 @@ var UpdateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		middlewares.ErrorResponse("Username is already taken.", w)
+		middlewares.ErrorResponse("Username is already taken.", rw)
 		return
 	}
 	if res.MatchedCount == 0 {
-		middlewares.ErrorResponse("User doesn't exist", w)
+		middlewares.ErrorResponse("User doesn't exist", rw)
 		return
 	}
 
 	token, err := middlewares.GenerateJWT(newUser.Username)
 	if err != nil {
-		middlewares.ErrorResponse("Failed to generate JWT", w)
+		middlewares.ErrorResponse("Failed to generate JWT", rw)
 		return
 	}
-	middlewares.SuccessResponse(string(token), w)
+	middlewares.SuccessResponse(string(token), rw)
 })
 
 // CreatePersonEndpoint -> create person
