@@ -10,13 +10,12 @@ import (
 
 	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
 	"github.com/gaquarius/challenge-platform-api/models"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const (
-	layoutISO = "2006-01-02"
-)
-
+// ListChallenge -> List all the challenges
 var ListChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	var challenges []*models.Challenge
 	collection := client.Database("challenge").Collection("challenges")
@@ -44,6 +43,36 @@ var ListChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 	middlewares.SuccessChallengeArrRespond(challenges, rw)
 })
 
+// GetChallengs -> Get challenges from the URL param
+var GetChallenges = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var challenges []*models.Challenge
+
+	collection := client.Database("challenge").Collection("challenges")
+	cursor, err := collection.Find(context.TODO(), bson.D{primitive.E{Key: "coordinator", Value: params["username"]}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	for cursor.Next(context.TODO()) {
+		var challenge models.Challenge
+		err := cursor.Decode(&challenge)
+		if err != nil {
+			log.Fatal(err)
+		}
+		challenges = append(challenges, &challenge)
+	}
+
+	if err := cursor.Err(); err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	middlewares.SuccessChallengeArrRespond(challenges, rw)
+})
+
+// CreateChallenge -> Create a challenge
 var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	var challenge models.Challenge
 	err := json.NewDecoder(r.Body).Decode(&challenge)
