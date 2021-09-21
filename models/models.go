@@ -16,12 +16,12 @@ type Person struct {
 // User Model
 type User struct {
 	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Username string             `json:"username" bson:"username"`
-	Role     string             `json:"role" bson:"role"`
-	Bio      string             `json:"bio" bson:"bio"`
-	Avatar   string             `json:"avatar" bson:"avatar"`
-	Identity string             `json:"identity" bson:"identity"`
-	Password string             `json:"password" bson:"password"`
+	Username string             `json:"username,omitempty" bson:"username,omitempty"`
+	Role     string             `json:"role,omitempty" bson:"role,omitempty"`
+	Bio      string             `json:"bio,omitempty" bson:"bio,omitempty"`
+	Avatar   string             `json:"avatar,omitempty" bson:"avatar,omitempty"`
+	Identity string             `json:"identity,omitempty" bson:"identity,omitempty"`
+	Password string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
 type ChallengeStatus string
@@ -36,17 +36,17 @@ const (
 // Challenge Model
 type Challenge struct {
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	StartDate   string             `json:"start_date" bson:"start_date"`
-	EndDate     string             `json:"end_date" bson:"end_date"`
-	Status      ChallengeStatus    `json:"status" bson:"status"`
-	Category    []string           `json:"category" bson:"category"`
-	Name        string             `json:"name" bson:"name"`
-	Description string             `json:"description" bson:"description"`
-	Content     string             `json:"content" bson:"content"`
-	HeaderImage string             `json:"header_image" bson:"header_image"`
-	Coordinator string             `json:"coordinator" bson:"coordinator"`
-	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at" bson:"updated_at"`
+	StartDate   string             `json:"start_date,omitempty" bson:"start_date,omitempty"`
+	EndDate     string             `json:"end_date,omitempty" bson:"end_date,omitempty"`
+	Status      ChallengeStatus    `json:"status,omitempty" bson:"status,omitempty"`
+	Category    []string           `json:"category,omitempty" bson:"category,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty"`
+	Content     string             `json:"content,omitempty" bson:"content,omitempty"`
+	HeaderImage string             `json:"header_image,omitempty" bson:"header_image,omitempty"`
+	Coordinator string             `json:"coordinator,omitempty" bson:"coordinator,omitempty"`
+	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type EscrowStatus string
@@ -58,11 +58,11 @@ const (
 
 type Escrow struct {
 	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Amount    float32            `json:"amount" bson:"amount"`
-	Challenge primitive.ObjectID `json:"challenge" bson:"challenge"`
-	Status    EscrowStatus       `json:"status" bson:"status"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
+	Amount    float32            `json:"amount,omitempty" bson:"amount,omitempty"`
+	Challenge primitive.ObjectID `json:"challenge,omitempty" bson:"challenge,omitempty"`
+	Status    EscrowStatus       `json:"status,omitempty" bson:"status,omitempty"`
+	CreatedAt time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type ActivityType string
@@ -76,9 +76,9 @@ const (
 
 type Activity struct {
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Challenge   primitive.ObjectID `json:"challenge" bson:"challenge"`
-	Participant string             `json:"participant" bson:"participant"`
-	Type        ActivityType       `json:"type" bson:"type"`
-	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at" bson:"updated_at"`
+	Challenge   primitive.ObjectID `json:"challenge,omitempty" bson:"challenge,omitempty"`
+	Participant string             `json:"participant,omitempty" bson:"participant,omitempty"`
+	Type        ActivityType       `json:"type,omitempty" bson:"type,omitempty"`
+	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

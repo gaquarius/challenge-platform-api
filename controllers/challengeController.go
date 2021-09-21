@@ -43,7 +43,7 @@ var ListChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 	middlewares.SuccessChallengeArrRespond(challenges, rw)
 })
 
-// GetChallengs -> Get challenges from the URL param
+// GetChallengs -> Get challenges for specific user
 var GetChallenges = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var challenges []*models.Challenge
@@ -90,4 +90,27 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 	}
 	res, _ := json.Marshal(result.InsertedID)
 	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), rw)
+})
+
+// GetChallenge -> Get a challenge by id
+var GetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var challenge models.Challenge
+
+	collection := client.Database("challenge").Collection("challenges")
+	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&challenge)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+	middlewares.SuccessRespond(challenge, rw)
+})
+
+var UpdateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+
+})
+
+var DeleteChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+
 })

@@ -28,7 +28,10 @@ func Routes() *mux.Router {
 	challenge := api.PathPrefix("/challenge").Subrouter()
 	challenge.HandleFunc("/", middlewares.IsAuthorized(controllers.ListChallenge)).Methods("GET")
 	challenge.HandleFunc("/", middlewares.IsAuthorized(controllers.CreateChallenge)).Methods("POST")
-	challenge.HandleFunc("/{username}", controllers.GetChallenges).Methods("GET")
+	challenge.HandleFunc("/user/{username}", controllers.GetChallenges).Methods("GET")
+	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.GetChallenge)).Methods("GET")
+	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.UpdateChallenge)).Methods("PUT")
+	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.DeleteChallenge)).Methods("DELETE")
 
 	api.HandleFunc("/person", controllers.CreatePersonEndpoint).Methods("POST")
 	api.HandleFunc("/people", middlewares.IsAuthorized(controllers.GetPeopleEndpoint)).Methods("GET")
