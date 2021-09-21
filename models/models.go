@@ -35,18 +35,21 @@ const (
 
 // Challenge Model
 type Challenge struct {
-	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	StartDate   string             `json:"start_date,omitempty" bson:"start_date,omitempty"`
-	EndDate     string             `json:"end_date,omitempty" bson:"end_date,omitempty"`
-	Status      ChallengeStatus    `json:"status,omitempty" bson:"status,omitempty"`
-	Category    []string           `json:"category,omitempty" bson:"category,omitempty"`
-	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
-	Description string             `json:"description,omitempty" bson:"description,omitempty"`
-	Content     string             `json:"content,omitempty" bson:"content,omitempty"`
-	HeaderImage string             `json:"header_image,omitempty" bson:"header_image,omitempty"`
-	Coordinator string             `json:"coordinator,omitempty" bson:"coordinator,omitempty"`
-	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	ID              primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	StartDate       string             `json:"start_date,omitempty" bson:"start_date,omitempty"`
+	EndDate         string             `json:"end_date,omitempty" bson:"end_date,omitempty"`
+	Status          ChallengeStatus    `json:"status,omitempty" bson:"status,omitempty"`
+	Goal            string             `json:"goal,omitempty" bson:"goal,omitempty"`
+	GoalIncreaments string             `json:"goal_increaments,omitempty" bson:"goal_increaments,omitempty"`
+	GoalThreshold   string             `json:"goal_threshold,omitempty" bson:"goal_threshold,omitempty"`
+	Category        []string           `json:"category,omitempty" bson:"category,omitempty"`
+	Name            string             `json:"name,omitempty" bson:"name,omitempty"`
+	Description     string             `json:"description,omitempty" bson:"description,omitempty"`
+	Content         string             `json:"content,omitempty" bson:"content,omitempty"`
+	HeaderImage     string             `json:"header_image,omitempty" bson:"header_image,omitempty"`
+	Coordinator     string             `json:"coordinator,omitempty" bson:"coordinator,omitempty"`
+	CreatedAt       time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt       time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type EscrowStatus string
