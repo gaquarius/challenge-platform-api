@@ -108,7 +108,29 @@ var GetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 })
 
 var UpdateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var challenge models.Challenge
 
+	err := json.NewDecoder(r.Body).Decode(&challenge)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	collection := client.Database("challenge").Collection("challenges")
+	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: challenge}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		middlewares.ErrorResponse("Challenge does not exist", rw)
+		return
+	}
+
+	middlewares.SuccessResponse("Updated", rw)
 })
 
 var DeleteChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
