@@ -17,7 +17,18 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
-
+        
+    - uses: actions/cache@v3
+      with:
+        # In order:
+        # * Module download cache
+        # * Build cache (Linux)
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Build
       run: go build -v ./...
 
