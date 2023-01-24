@@ -1,24 +1,25 @@
 name: Heroku
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+   push:
+#     branches:
+#       - QA
+   workflow_dispatch:
 jobs:
 
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
         
-    - uses: actions/cache@v3
+    - name: Cache
+      uses: actions/cache@v3
       with:
         # In order:
         # * Module download cache
@@ -29,8 +30,17 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+          
     - name: Build
       run: go build -v ./...
 
     - name: Test
       run: go test -v ./...
+    
+    - name: Deploy API -> Prod
+      uses: akhileshns/heroku-deploy@v3.12.12
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "challenge-api-qa"
+        heroku_email: ${{secrets.HEROKU_EMAIL}}
+        branch: main
