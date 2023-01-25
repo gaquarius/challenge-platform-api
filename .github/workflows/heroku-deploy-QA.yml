@@ -1,9 +1,9 @@
-name: Heroku
+name: QA - Heroku Deploy
 
 on:
    push:
-#     branches:
-#       - QA
+    branches:
+      - QA
    workflow_dispatch:
 jobs:
 
@@ -37,10 +37,10 @@ jobs:
     - name: Test
       run: go test -v ./...
     
-    - name: Deploy API -> Prod
+    - name: Deploy API -> QA
       uses: akhileshns/heroku-deploy@v3.12.12
       with:
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
         heroku_app_name: "challenge-api-qa"
         heroku_email: ${{secrets.HEROKU_EMAIL}}
-        branch: main
+        branch: QA
