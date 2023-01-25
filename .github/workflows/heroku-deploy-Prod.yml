@@ -1,10 +1,12 @@
 name: Prod - Heroku Deploy
 
 on:
+   # Job Trigger automatically if any PR is closed for main branch
    pull_request:
     branches:
       - main
     types: close
+   # Enabled Manual Trigger
    workflow_dispatch:
 jobs:
 
