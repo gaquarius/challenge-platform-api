@@ -47,4 +47,5 @@ jobs:
         heroku_app_name: "challenge-api-qa"
         heroku_email: ${{secrets.HEROKU_EMAIL}}
         branch: QA
-        env_file: .env.default 
+        env_file: .env
+        usedocker: true
