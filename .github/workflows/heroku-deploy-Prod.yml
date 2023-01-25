@@ -5,7 +5,7 @@ on:
    pull_request:
     branches:
       - main
-    types: close
+    types: [ closed ]
    # Enabled Manual Trigger
    workflow_dispatch:
 jobs:
