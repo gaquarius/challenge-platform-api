@@ -48,4 +48,3 @@ jobs:
         heroku_email: ${{secrets.HEROKU_EMAIL}}
         branch: QA
         env_file: .env
-        usedocker: true
