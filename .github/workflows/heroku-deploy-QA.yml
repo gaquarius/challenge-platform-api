@@ -1,12 +1,14 @@
 name: QA - Heroku Deploy
 
 on:
+   # Job Trigger automatically if any code push/PR to QA branch
    push:
     branches:
       - QA
+   # Enabled Manual Trigger
    workflow_dispatch:
+   
 jobs:
-
   build-deploy:
     name: Deploy
     runs-on: ubuntu-latest
