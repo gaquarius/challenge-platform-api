@@ -45,3 +45,4 @@ jobs:
         heroku_app_name: "challenge-api"
         heroku_email: ${{secrets.HEROKU_EMAIL}}
         branch: main
+        env_file: .env.default 
