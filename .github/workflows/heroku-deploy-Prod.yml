@@ -1,14 +1,17 @@
 name: Prod - Heroku Deploy
 
 on:
+   # Job Trigger automatically if any PR is closed for main branch
    pull_request:
     branches:
-      - main
-    types: close
+      - dev
+    types: [ closed ]
+   # Enabled Manual Trigger
    workflow_dispatch:
 jobs:
 
-  build:
+  build-deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -44,4 +47,5 @@ jobs:
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
         heroku_app_name: "challenge-api"
         heroku_email: ${{secrets.HEROKU_EMAIL}}
-        branch: main
+        branch: dev
+#         env_file: .env.default 
