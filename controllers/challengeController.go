@@ -10,6 +10,7 @@ import (
 
 	middlewares "github.com/chattertechno/challenge-platform-api/handlers"
 	"github.com/chattertechno/challenge-platform-api/models"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -137,18 +138,93 @@ var DeleteChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 
 })
 
-// TO-DO USER TO JOIN THE CHALLENGE
 var JoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-	// params := mux.Vars(r)
-	// id, _ := primitive.ObjectIDFromHex(params["id"])
-	// var challenge models.Challenge
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
 
-	// err := json.NewDecoder(r.Body).Decode(&challenge)
-	// if err != nil {
-	// 	middlewares.ServerErrResponse(err.Error(), rw)
-	// 	return
-	// }
-	// collection := client.Database("challenge").Collection("challenges")
-	// res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: challenge}})
+	var challenge models.Challenge
 
+	collection := client.Database("challenge").Collection("challenges")
+	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&challenge)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	props, _ := r.Context().Value("props").(jwt.MapClaims)
+
+	if challenge.Status == "private" {
+		if challenge.Coordinator == props["username"] || challenge.RecipientAddress == props["identity"] {
+
+			challenge.Participants = append(challenge.Participants, challenge.Identity)
+
+			res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
+			if err != nil {
+				middlewares.ServerErrResponse(err.Error(), rw)
+				return
+			}
+
+			if res.MatchedCount == 0 {
+				middlewares.ErrorResponse("challenge does not exist", rw)
+				return
+			}
+
+			middlewares.SuccessRespond(params["id"], rw)
+			return
+		}
+		middlewares.ForbiddenResponse("you have no access for this challenge", rw)
+		return
+	}
+
+	challenge.Participants = append(challenge.Participants, challenge.Identity)
+
+	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		middlewares.ErrorResponse("challenge does not exist", rw)
+		return
+	}
+
+	middlewares.SuccessRespond(params["id"], rw)
+})
+
+var UnJoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+
+	var challenge models.Challenge
+
+	collection := client.Database("challenge").Collection("challenges")
+	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&challenge)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	props, _ := r.Context().Value("props").(jwt.MapClaims)
+
+	identity := props["identity"]
+	for i, v := range challenge.Participants {
+		if v == identity {
+			challenge.Participants = append(challenge.Participants[:i], challenge.Participants[i+1:]...)
+			break
+		}
+	}
+
+	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		middlewares.ErrorResponse("challenge does not exist", rw)
+		return
+	}
+
+	middlewares.SuccessResponse("unjoin challenge successfully", rw)
 })

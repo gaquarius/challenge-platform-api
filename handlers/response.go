@@ -108,6 +108,20 @@ func ErrorResponse(error string, writer http.ResponseWriter) {
 	json.NewEncoder(writer).Encode(temp)
 }
 
+// ForbiddenResponse -> error formatter
+func ForbiddenResponse(msg string, writer http.ResponseWriter) {
+	type errdata struct {
+		Statuscode int    `json:"status"`
+		Message    string `json:"msg"`
+	}
+	temp := &errdata{Statuscode: http.StatusForbidden, Message: msg}
+
+	//Send header, status code and output to writer
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(writer).Encode(temp)
+}
+
 // ServerErrResponse -> server error formatter
 func ServerErrResponse(error string, writer http.ResponseWriter) {
 	type servererrdata struct {

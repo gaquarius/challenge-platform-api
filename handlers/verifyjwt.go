@@ -14,6 +14,7 @@ var JWT_SECRET = []byte(DotEnvVariable("JWT_SECRET"))
 
 type Claims struct {
 	Username string `json:"username"`
+	Identity string `json:"identity"`
 	jwt.StandardClaims
 }
 
@@ -45,10 +46,10 @@ func IsAuthorized(next http.Handler) http.HandlerFunc {
 }
 
 // GenerateJWT -> generate jwt
-func GenerateJWT(username string) (string, error) {
-	//fmt.Println(`this is user`, username)
+func GenerateJWT(username, identity string) (string, error) {
 	claims := &Claims{
 		Username: username,
+		Identity: identity,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(2 * time.Hour).Unix(),
 		},
