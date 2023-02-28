@@ -152,11 +152,12 @@ var JoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 	}
 
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
+	identity := props["identity"].(string)
 
 	if challenge.Status == "private" {
-		if challenge.Coordinator == props["username"] || challenge.RecipientAddress == props["identity"] {
+		if challenge.Coordinator == props["username"] || challenge.RecipientAddress == identity {
 
-			challenge.Participants = append(challenge.Participants, challenge.Identity)
+			challenge.Participants = append(challenge.Participants, identity)
 
 			res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
 			if err != nil {
@@ -175,8 +176,7 @@ var JoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 		middlewares.ForbiddenResponse("you have no access for this challenge", rw)
 		return
 	}
-
-	challenge.Participants = append(challenge.Participants, challenge.Identity)
+	challenge.Participants = append(challenge.Participants, identity)
 
 	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
 	if err != nil {
@@ -206,13 +206,19 @@ var UnJoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 	}
 
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
+	identity := props["identity"].(string)
 
-	identity := props["identity"]
+	var check bool = false
 	for i, v := range challenge.Participants {
 		if v == identity {
 			challenge.Participants = append(challenge.Participants[:i], challenge.Participants[i+1:]...)
+			check = true
 			break
 		}
+	}
+	if !check {
+		middlewares.ErrorResponse("you have already leave this challenge", rw)
+		return
 	}
 
 	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
