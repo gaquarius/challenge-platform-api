@@ -46,6 +46,7 @@ type Challenge struct {
 	Category         []string           `json:"category,omitempty" bson:"category,omitempty"`
 	Name             string             `json:"name,omitempty" bson:"name,omitempty"`
 	Description      string             `json:"description,omitempty" bson:"description,omitempty"`
+	Mnemonic         string             `json:"mnemonic,omitempty" bson:"mnemonic,omitempty"`
 	Content          string             `json:"content,omitempty" bson:"content,omitempty"`
 	HeaderImage      string             `json:"header_image,omitempty" bson:"header_image,omitempty"`
 	Coordinator      string             `json:"coordinator,omitempty" bson:"coordinator,omitempty"`

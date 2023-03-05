@@ -84,6 +84,12 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 	challenge.CreatedAt = time.Now()
 	challenge.UpdatedAt = time.Now()
 	collection := client.Database("challenge").Collection("challenges")
+	var existingChallenge models.Challenge
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "mnemonic", Value: challenge.Mnemonic}}).Decode(&existingChallenge)
+	if err == nil {
+		middlewares.ErrorResponse("Mnemonic Invalid", rw)
+		return
+	}
 	result, err := collection.InsertOne(context.TODO(), challenge)
 	if err != nil {
 		middlewares.ServerErrResponse(err.Error(), rw)
