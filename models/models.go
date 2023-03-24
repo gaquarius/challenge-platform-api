@@ -111,3 +111,9 @@ type Steps struct {
 	ChallengeID          string             `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`
 	CreatedAt            time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+type WinnerResponse struct {
+	Identity    string  `json:"identity,omitempty" bson:"identity,omitempty"`
+	ChallengeID string  `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`
+	Amount      float64 `json:"amount,omitempty" bson:"amount,omitempty"`
+}
