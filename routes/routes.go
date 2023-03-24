@@ -35,6 +35,15 @@ func Routes() *mux.Router {
 	challenge.HandleFunc("/{id}/join/", middlewares.IsAuthorized(controllers.JoinChallenge)).Methods("POST")
 	challenge.HandleFunc("/{id}/unjoin/", middlewares.IsAuthorized(controllers.UnJoinChallenge)).Methods("POST")
 
+	// Challenge bet routes
+	bet := challenge.PathPrefix("/bet").Subrouter()
+	bet.HandleFunc("/add/", middlewares.IsAuthorized(controllers.AddBetChallenge)).Methods("POST")
+	bet.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.GetAllBetsForChallenge)).Methods("GET")
+
+	// User steps routes
+	steps := challenge.PathPrefix("/user/steps").Subrouter()
+	steps.HandleFunc("/add/", middlewares.IsAuthorized(controllers.AddStepsChallenge)).Methods("PUT")
+
 	api.HandleFunc("/person", controllers.CreatePersonEndpoint).Methods("POST")
 	api.HandleFunc("/people", middlewares.IsAuthorized(controllers.GetPeopleEndpoint)).Methods("GET")
 	api.HandleFunc("/person/{id}", controllers.GetPersonEndpoint).Methods("GET")

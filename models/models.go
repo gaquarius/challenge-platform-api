@@ -91,3 +91,23 @@ type Activity struct {
 	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
+
+type Bet struct {
+	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Identity    string             `json:"identity,omitempty" bson:"identity,omitempty"`
+	Amount      float64            `json:"amount,omitempty" bson:"amount,omitempty"`
+	ChallengeID string             `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`
+	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+type Steps struct {
+	ID                   primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Identity             string             `json:"identity,omitempty" bson:"identity,omitempty"`
+	StepsCount           int64              `json:"steps_count,omitempty" bson:"steps_count,omitempty"`
+	StepsDistance        string             `json:"steps_distance,omitempty" bson:"steps_distance,omitempty"`
+	MinimumStepsCount    int64              `json:"minimum_steps_count,omitempty" bson:"minimum_steps_count,omitempty"`
+	MinimumStepsDistance string             `json:"minimum_steps_distance,omitempty" bson:"minimum_steps_distance,omitempty"`
+	ChallengeID          string             `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`
+	CreatedAt            time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
