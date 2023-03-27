@@ -33,6 +33,11 @@ var AddBetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if challenge.MinBetAmount > bet.Amount {
+		middlewares.ErrorResponse(fmt.Sprintf("bet must be greater than %v", challenge.MinBetAmount), rw)
+		return
+	}
+
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	identity := props["identity"].(string)
 	bet.Identity = identity
