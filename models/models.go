@@ -107,6 +107,7 @@ type Steps struct {
 	Identity             string             `json:"identity,omitempty" bson:"identity,omitempty"`
 	StepsCount           int64              `json:"steps_count,omitempty" bson:"steps_count,omitempty"`
 	StepsDistance        string             `json:"steps_distance,omitempty" bson:"steps_distance,omitempty"`
+	Distance             string             `json:"distance,omitempty" bson:"distance,omitempty"`
 	MinimumStepsCount    int64              `json:"minimum_steps_count,omitempty" bson:"minimum_steps_count,omitempty"`
 	MinimumStepsDistance string             `json:"minimum_steps_distance,omitempty" bson:"minimum_steps_distance,omitempty"`
 	ChallengeID          string             `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`

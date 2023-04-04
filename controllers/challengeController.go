@@ -286,35 +286,6 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var winnerRecord []*models.Steps
-
-	if challenges.Goal == "distance" {
-		floatGoalThershold, err := strconv.ParseFloat(challenges.GoalThreshold, 32)
-		if err != nil {
-			middlewares.ServerErrResponse(err.Error(), rw)
-		}
-		for _, v := range steps {
-			distance := strings.Split(v.StepsDistance, " ")
-			floatUserDistance, err := strconv.ParseFloat(distance[0], 32)
-			if err != nil {
-				middlewares.ServerErrResponse(err.Error(), rw)
-			}
-			if floatUserDistance > floatGoalThershold {
-				winnerRecord = append(winnerRecord, v)
-			}
-		}
-	} else if challenges.Goal == "count" {
-		intGoalThershold, err := strconv.ParseInt(challenges.GoalThreshold, 10, 64)
-		if err != nil {
-			middlewares.ServerErrResponse(err.Error(), rw)
-		}
-		for _, v := range steps {
-			if v.StepsCount > intGoalThershold {
-				winnerRecord = append(winnerRecord, v)
-			}
-		}
-	}
-
 	var bets []*models.Bet
 
 	betCollection := client.Database("challenge").Collection("bets")
@@ -337,29 +308,86 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
-	var totalAmount float64
 
-	for _, bet := range bets {
-		totalAmount = totalAmount + bet.Amount
+	checkChallengeWins := false
+
+	goalThreshold, err := strconv.ParseFloat(challenges.GoalThreshold, 64)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
 	}
-	var count int64
-	var winners []models.WinnerResponse
-	for _, winner := range winnerRecord {
-		for _, user := range bets {
-			var win models.WinnerResponse
-			if user.Identity == winner.Identity {
-				win.ChallengeID = user.ChallengeID
-				win.Identity = user.Identity
-				// win.Amount = averageAmount
-				count++
-				winners = append(winners, win)
+
+	for _, value := range steps {
+		stepsDistance, err := strconv.ParseFloat(value.StepsDistance, 64)
+		if err != nil {
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
+		}
+		if goalThreshold < stepsDistance {
+			checkChallengeWins = true
+			break
+		}
+
+	}
+
+	var winnerRecord []*models.Steps
+
+	if checkChallengeWins {
+
+		if challenges.Goal == "distance" {
+			floatGoalThershold, err := strconv.ParseFloat(challenges.GoalThreshold, 32)
+			if err != nil {
+				middlewares.ServerErrResponse(err.Error(), rw)
+				return
+			}
+			for _, v := range steps {
+				floatUserDistance, err := strconv.ParseFloat(v.StepsDistance, 64)
+				if err != nil {
+					middlewares.ServerErrResponse(err.Error(), rw)
+					return
+				}
+				if floatUserDistance > floatGoalThershold {
+					winnerRecord = append(winnerRecord, v)
+				}
+			}
+		} else if challenges.Goal == "count" {
+			intGoalThershold, err := strconv.ParseInt(challenges.GoalThreshold, 10, 64)
+			if err != nil {
+				middlewares.ServerErrResponse(err.Error(), rw)
+				return
+			}
+			for _, v := range steps {
+				if v.StepsCount > intGoalThershold {
+					winnerRecord = append(winnerRecord, v)
+				}
 			}
 		}
-	}
-	averageAmount := totalAmount / float64(count)
-	for i := range winners {
-		winners[i].Amount = averageAmount
-	}
 
-	middlewares.SuccessRespond(winners, rw)
+		var totalAmount float64
+
+		for _, bet := range bets {
+			totalAmount = totalAmount + bet.Amount
+		}
+		var count int64
+		var winners []models.WinnerResponse
+		for _, winner := range winnerRecord {
+			for _, user := range bets {
+				var win models.WinnerResponse
+				if user.Identity == winner.Identity {
+					win.ChallengeID = user.ChallengeID
+					win.Identity = user.Identity
+					// win.Amount = averageAmount
+					count++
+					winners = append(winners, win)
+				}
+			}
+		}
+		averageAmount := totalAmount / float64(count)
+		for i := range winners {
+			winners[i].Amount = averageAmount
+		}
+		middlewares.SuccessRespondWithCustomMessage(winners, "challenge winners", rw)
+		return
+	}
+	middlewares.SuccessRespondWithCustomMessage(bets, "no winner", rw)
 })

@@ -70,6 +70,9 @@ var AddStepsChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Re
 	if len(steps.MinimumStepsDistance) > 0 {
 		existedSteps.MinimumStepsDistance = steps.MinimumStepsDistance
 	}
+	if len(steps.Distance) > 0 {
+		existedSteps.Distance = steps.Distance
+	}
 
 	_, err = stepsCollection.ReplaceOne(context.TODO(), bson.M{"_id": existedSteps.ID}, existedSteps)
 	if err != nil {
