@@ -51,7 +51,7 @@ func GenerateJWT(username, identity string) (string, error) {
 		Username: username,
 		Identity: identity,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(2 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 		},
 	}
 
