@@ -16,13 +16,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ListChallenge -> List all the challenges
 var ListChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	var challenges []*models.Challenge
+	opts := options.Find().SetSort(bson.D{primitive.E{Key: "created_at", Value: -1}})
+
 	collection := client.Database("challenge").Collection("challenges")
-	cursor, err := collection.Find(context.TODO(), bson.D{})
+	cursor, err := collection.Find(context.TODO(), bson.D{}, opts)
 	if err != nil {
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
@@ -83,8 +86,8 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
-	challenge.CreatedAt = time.Now()
-	challenge.UpdatedAt = time.Now()
+	challenge.CreatedAt = time.Now().UTC()
+	challenge.UpdatedAt = time.Now().UTC()
 	collection := client.Database("challenge").Collection("challenges")
 	var existingChallenge models.Challenge
 	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "mnemonic", Value: challenge.Mnemonic}}).Decode(&existingChallenge)

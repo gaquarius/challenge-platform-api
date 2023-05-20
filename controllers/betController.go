@@ -41,7 +41,7 @@ var AddBetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	identity := props["identity"].(string)
 	bet.Identity = identity
-	bet.CreatedAt = time.Now()
+	bet.CreatedAt = time.Now().UTC()
 
 	betCollection := client.Database("challenge").Collection("bets")
 	result, err := betCollection.InsertOne(context.TODO(), bet)

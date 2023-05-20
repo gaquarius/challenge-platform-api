@@ -37,7 +37,7 @@ var AddStepsChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Re
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	identity := props["identity"].(string)
 	steps.Identity = identity
-	steps.CreatedAt = time.Now()
+	steps.CreatedAt = time.Now().UTC()
 
 	filter := bson.M{
 		"challenge_id": steps.ChallengeID,
