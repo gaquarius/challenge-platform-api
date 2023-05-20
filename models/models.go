@@ -43,6 +43,7 @@ type Challenge struct {
 	Goal             string             `json:"goal,omitempty" bson:"goal,omitempty"`
 	GoalIncreaments  string             `json:"goal_increaments,omitempty" bson:"goal_increaments,omitempty"`
 	GoalThreshold    string             `json:"goal_threshold,omitempty" bson:"goal_threshold,omitempty"`
+	AddBet           string             `json:"add_bet,omitempty" bson:"add_bet,omitempty"`
 	Category         []string           `json:"category,omitempty" bson:"category,omitempty"`
 	Name             string             `json:"name,omitempty" bson:"name,omitempty"`
 	Description      string             `json:"description,omitempty" bson:"description,omitempty"`
