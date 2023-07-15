@@ -15,14 +15,15 @@ type Person struct {
 
 // User Model
 type User struct {
-	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Username string             `json:"username,omitempty" bson:"username,omitempty"`
-	Role     string             `json:"role,omitempty" bson:"role,omitempty"`
-	Bio      string             `json:"bio,omitempty" bson:"bio,omitempty"`
-	Avatar   string             `json:"avatar,omitempty" bson:"avatar,omitempty"`
-	Identity string             `json:"identity,omitempty" bson:"identity,omitempty"`
-	Mnemonic string             `json:"mnemonic,omitempty" bson:"mnemonic,omitempty"`
-	Password string             `json:"password,omitempty" bson:"password,omitempty"`
+	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Username   string             `json:"username,omitempty" bson:"username,omitempty"`
+	Role       string             `json:"role,omitempty" bson:"role,omitempty"`
+	Bio        string             `json:"bio,omitempty" bson:"bio,omitempty"`
+	Avatar     string             `json:"avatar,omitempty" bson:"avatar,omitempty"`
+	Identity   string             `json:"identity,omitempty" bson:"identity,omitempty"`
+	Mnemonic   string             `json:"mnemonic,omitempty" bson:"mnemonic,omitempty"`
+	PrivateKey string             `json:"private_key,omitempty" bson:"private_key,omitempty"`
+	Password   string             `json:"password,omitempty" bson:"password,omitempty"`
 }
 
 type ChallengeStatus string
