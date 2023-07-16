@@ -232,41 +232,24 @@ var JoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 
 var UnJoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	id, _ := primitive.ObjectIDFromHex(params["id"])
-
-	var challenge models.Challenge
-
-	collection := client.Database("challenge").Collection("challenges")
-	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&challenge)
-	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), rw)
-		return
-	}
 
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	identity := props["identity"].(string)
 
-	var check bool = false
-	for i, v := range challenge.Participants {
-		if v == identity {
-			challenge.Participants = append(challenge.Participants[:i], challenge.Participants[i+1:]...)
-			check = true
-			break
-		}
-	}
-	if !check {
-		middlewares.ErrorResponse("you have already leave this challenge", rw)
-		return
+	filter := bson.M{
+		"challenge_id": params["id"],
+		"identity":     identity,
 	}
 
-	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
+	challengeJoined := client.Database("challenge").Collection("challengeJoined")
+
+	deleteResult, err := challengeJoined.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), rw)
-		return
+		log.Fatal(err)
 	}
 
-	if res.MatchedCount == 0 {
-		middlewares.ErrorResponse("challenge does not exist", rw)
+	if deleteResult.DeletedCount == 0 {
+		middlewares.ErrorResponse("challenge does not exists", rw)
 		return
 	}
 
