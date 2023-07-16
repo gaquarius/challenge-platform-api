@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -86,15 +87,13 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
-	challenge.CreatedAt = time.Now().UTC()
-	challenge.UpdatedAt = time.Now().UTC()
+	props, _ := r.Context().Value("props").(jwt.MapClaims)
+	challenge.Identity = props["identity"].(string)
+
+	now := time.Now().UTC()
+	challenge.CreatedAt = now
+	challenge.UpdatedAt = now
 	collection := client.Database("challenge").Collection("challenges")
-	var existingChallenge models.Challenge
-	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "mnemonic", Value: challenge.Mnemonic}}).Decode(&existingChallenge)
-	if err == nil {
-		middlewares.ErrorResponse("Mnemonic Invalid", rw)
-		return
-	}
 	result, err := collection.InsertOne(context.TODO(), challenge)
 	if err != nil {
 		middlewares.ServerErrResponse(err.Error(), rw)
@@ -150,57 +149,85 @@ var DeleteChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 })
 
 var JoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var req models.JoinChallenge
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+	ChallengeID, _ := primitive.ObjectIDFromHex(req.ChallengeID)
 
 	var challenge models.Challenge
 
 	collection := client.Database("challenge").Collection("challenges")
-	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&challenge)
+	err = collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: ChallengeID}}).Decode(&challenge)
 	if err != nil {
-		middlewares.ServerErrResponse(err.Error(), rw)
+		if err == mongo.ErrNoDocuments {
+			middlewares.ErrorResponse("challenge does not exists", rw)
+			return
+		}
+		middlewares.ErrorResponse(err.Error(), rw)
 		return
 	}
 
 	props, _ := r.Context().Value("props").(jwt.MapClaims)
 	identity := props["identity"].(string)
 
-	if challenge.Status == "private" {
-		if challenge.Coordinator == props["username"] || challenge.RecipientAddress == identity {
-
-			challenge.Participants = append(challenge.Participants, identity)
-
-			res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
-			if err != nil {
-				middlewares.ServerErrResponse(err.Error(), rw)
-				return
-			}
-
-			if res.MatchedCount == 0 {
-				middlewares.ErrorResponse("challenge does not exist", rw)
-				return
-			}
-
-			middlewares.SuccessRespond(params["id"], rw)
-			return
-		}
-		middlewares.ForbiddenResponse("you have no access for this challenge", rw)
-		return
-	}
-	challenge.Participants = append(challenge.Participants, identity)
-
-	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "Participants", Value: challenge.Participants}}}})
+	challengeBet, err := strconv.ParseFloat(challenge.AddBet, 64)
 	if err != nil {
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
 
-	if res.MatchedCount == 0 {
-		middlewares.ErrorResponse("challenge does not exist", rw)
+	if challengeBet > req.Bet {
+		middlewares.ErrorResponse(fmt.Sprintf("bet must be greater than %v", challengeBet), rw)
 		return
 	}
 
-	middlewares.SuccessRespond(params["id"], rw)
+	req.Identity = identity
+	req.CreatedAt = time.Now().UTC()
+
+	challengeJoined := client.Database("challenge").Collection("challengeJoined")
+
+	filter := bson.M{
+		"challenge_id": req.ChallengeID,
+		"identity":     req.Identity,
+	}
+
+	var getjoinedChallenge models.JoinChallenge
+
+	err = challengeJoined.FindOne(context.TODO(), filter).Decode(&getjoinedChallenge)
+	if err != nil && err != mongo.ErrNoDocuments {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	if getjoinedChallenge.ChallengeID != "" || getjoinedChallenge.Identity != "" {
+		if err != nil {
+			middlewares.ErrorResponse("you already joined this challenge", rw)
+			return
+		}
+	}
+
+	result, err := challengeJoined.InsertOne(context.TODO(), req)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	var bet models.Bet
+	bet.Identity = identity
+	bet.ChallengeID = req.ChallengeID
+	bet.Amount = req.Bet
+
+	betCollection := client.Database("challenge").Collection("bets")
+	_, err = betCollection.InsertOne(context.TODO(), bet)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+	res, _ := json.Marshal(result.InsertedID)
+	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), rw)
 })
 
 var UnJoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {

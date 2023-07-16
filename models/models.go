@@ -104,6 +104,15 @@ type Bet struct {
 	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
+type JoinChallenge struct {
+	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Identity    string             `json:"identity,omitempty" bson:"identity,omitempty"`
+	Bet         float64            `json:"bet,omitempty" bson:"bet,omitempty"`
+	ChallengeID string             `json:"challenge_id,omitempty" bson:"challenge_id,omitempty"`
+	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
 type Steps struct {
 	ID                   primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Identity             string             `json:"identity,omitempty" bson:"identity,omitempty"`
