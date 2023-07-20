@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,7 +35,8 @@ var ListChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 		var challenge models.Challenge
 		err := cursor.Decode(&challenge)
 		if err != nil {
-			log.Fatal(err)
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
 		}
 
 		challenges = append(challenges, &challenge)
@@ -66,7 +66,8 @@ var GetChallenges = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Reques
 		var challenge models.Challenge
 		err := cursor.Decode(&challenge)
 		if err != nil {
-			log.Fatal(err)
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
 		}
 		challenges = append(challenges, &challenge)
 	}
@@ -91,6 +92,7 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 	challenge.Identity = props["identity"].(string)
 
 	now := time.Now().UTC()
+	challenge.FundDeliveredFlag = false
 	challenge.CreatedAt = now
 	challenge.UpdatedAt = now
 	collection := client.Database("challenge").Collection("challenges")
@@ -245,7 +247,8 @@ var UnJoinChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 
 	deleteResult, err := challengeJoined.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		log.Fatal(err)
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
 	}
 
 	if deleteResult.DeletedCount == 0 {
@@ -290,7 +293,8 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		var step models.Steps
 		err := cursor.Decode(&step)
 		if err != nil {
-			log.Fatal(err)
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
 		}
 		steps = append(steps, &step)
 	}
@@ -312,7 +316,8 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		var bet models.Bet
 		err := cursor.Decode(&bet)
 		if err != nil {
-			log.Fatal(err)
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
 		}
 		bets = append(bets, &bet)
 	}
@@ -403,4 +408,64 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 	middlewares.SuccessRespondWithCustomMessage(bets, "no winner", rw)
+})
+
+var UpdateFlag = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var challenge models.UpdateFlagRequest
+
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	challenge.FundDeliveredFlag = true
+
+	collection := client.Database("challenge").Collection("challenges")
+	res, err := collection.UpdateOne(context.TODO(), bson.D{primitive.E{Key: "_id", Value: id}}, bson.D{primitive.E{Key: "$set", Value: challenge}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		middlewares.ErrorResponse("Challenge does not exist", rw)
+		return
+	}
+
+	middlewares.SuccessResponse("Flag updated", rw)
+})
+
+var FinishedChallenges = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	var challenges []*models.GetChallenges
+
+	collection := client.Database("challenge").Collection("challenges")
+	ctx := context.TODO()
+	currentDateTime := time.Now().Format("2006-01-02")
+
+	filter := bson.M{
+		"end_date":            bson.M{"$gte": currentDateTime},
+		"fund_delivered_flag": false,
+	}
+
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var challenge models.GetChallenges
+		err := cursor.Decode(&challenge)
+		if err != nil {
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
+		}
+
+		challenges = append(challenges, &challenge)
+	}
+
+	if err := cursor.Err(); err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	middlewares.SuccessRespond(challenges, rw)
 })

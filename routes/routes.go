@@ -36,6 +36,9 @@ func Routes() *mux.Router {
 	challenge.HandleFunc("/{id}/unjoin/", middlewares.IsAuthorized(controllers.UnJoinChallenge)).Methods("POST")
 	challenge.HandleFunc("/{id}/winner/", middlewares.IsAuthorized(controllers.ChallengeWinner)).Methods("GET")
 
+	challenge.HandleFunc("/finished/", controllers.FinishedChallenges).Methods("GET")
+	challenge.HandleFunc("/update/flag/{id}", controllers.UpdateFlag).Methods("PUT")
+
 	// Challenge bet routes
 	bet := challenge.PathPrefix("/bet").Subrouter()
 	bet.HandleFunc("/add/", middlewares.IsAuthorized(controllers.AddBetChallenge)).Methods("POST")
