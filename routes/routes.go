@@ -34,7 +34,7 @@ func Routes() *mux.Router {
 	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.DeleteChallenge)).Methods("DELETE")
 	challenge.HandleFunc("/join/", middlewares.IsAuthorized(controllers.JoinChallenge)).Methods("POST")
 	challenge.HandleFunc("/{id}/unjoin/", middlewares.IsAuthorized(controllers.UnJoinChallenge)).Methods("POST")
-	challenge.HandleFunc("/{id}/winner/", middlewares.IsAuthorized(controllers.ChallengeWinner)).Methods("GET")
+	challenge.HandleFunc("/{id}/winner/", controllers.ChallengeWinner).Methods("GET")
 
 	challenge.HandleFunc("/finished/", controllers.FinishedChallenges).Methods("GET")
 	challenge.HandleFunc("/update/flag/{id}", controllers.UpdateFlag).Methods("PUT")
