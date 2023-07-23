@@ -124,7 +124,7 @@ var GetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var participants []*models.JoinChallenge
+	var participants []models.JoinChallenge
 
 	for cursor.Next(context.TODO()) {
 		var participant models.JoinChallenge
@@ -133,7 +133,7 @@ var GetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 			middlewares.ServerErrResponse(err.Error(), rw)
 			return
 		}
-		participants = append(participants, &participant)
+		participants = append(participants, participant)
 	}
 
 	if err := cursor.Err(); err != nil {
