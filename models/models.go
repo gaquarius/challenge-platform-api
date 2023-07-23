@@ -57,7 +57,7 @@ type Challenge struct {
 	Visible           bool            `json:"visible,omitempty" bson:"visible,omitempty"`
 	RecipientAddress  string          `json:"recipient_address,omitempty" bson:"recipient_address,omitempty"`
 	MinBetAmount      float64         `json:"min_bet_amount,omitempty" bson:"min_bet_amount,omitempty"`
-	Participants      []JoinChallenge `json:"participants,omitempty" bson:"participants,omitempty"`
+	Participants      []JoinChallenge `json:"participant,omitempty" bson:"participant,omitempty"`
 	CreatedAt         time.Time       `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt         time.Time       `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
