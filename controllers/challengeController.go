@@ -117,6 +117,31 @@ var GetChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	challengeJoined := client.Database("challenge").Collection("challengeJoined")
+	cursor, err := challengeJoined.Find(context.TODO(), bson.D{primitive.E{Key: "challenge_id", Value: params["id"]}})
+	if err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+
+	var participants []*models.JoinChallenge
+
+	for cursor.Next(context.TODO()) {
+		var participant models.JoinChallenge
+		err := cursor.Decode(&participant)
+		if err != nil {
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
+		}
+		participants = append(participants, &participant)
+	}
+
+	if err := cursor.Err(); err != nil {
+		middlewares.ServerErrResponse(err.Error(), rw)
+		return
+	}
+	challenge.Participants = participants
+
 	middlewares.SuccessRespond(challenge, rw)
 })
 

@@ -49,17 +49,17 @@ type Challenge struct {
 	Name            string             `json:"name,omitempty" bson:"name,omitempty"`
 	Description     string             `json:"description,omitempty" bson:"description,omitempty"`
 	// Mnemonic         string             `json:"mnemonic,omitempty" bson:"mnemonic,omitempty"`
-	FundDeliveredFlag bool    `json:"fund_delivered_flag" bson:"fund_delivered_flag"`
-	Content           string  `json:"content,omitempty" bson:"content,omitempty"`
-	HeaderImage       string  `json:"header_image,omitempty" bson:"header_image,omitempty"`
-	Coordinator       string  `json:"coordinator,omitempty" bson:"coordinator,omitempty"`
-	Identity          string  `json:"identity,omitempty" bson:"identity,omitempty"`
-	Visible           bool    `json:"visible,omitempty" bson:"visible,omitempty"`
-	RecipientAddress  string  `json:"recipient_address,omitempty" bson:"recipient_address,omitempty"`
-	MinBetAmount      float64 `json:"min_bet_amount,omitempty" bson:"min_bet_amount,omitempty"`
-	// Participants     []string           `json:"participants,omitempty" bson:"participants,omitempty"`
-	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	FundDeliveredFlag bool             `json:"fund_delivered_flag" bson:"fund_delivered_flag"`
+	Content           string           `json:"content,omitempty" bson:"content,omitempty"`
+	HeaderImage       string           `json:"header_image,omitempty" bson:"header_image,omitempty"`
+	Coordinator       string           `json:"coordinator,omitempty" bson:"coordinator,omitempty"`
+	Identity          string           `json:"identity,omitempty" bson:"identity,omitempty"`
+	Visible           bool             `json:"visible,omitempty" bson:"visible,omitempty"`
+	RecipientAddress  string           `json:"recipient_address,omitempty" bson:"recipient_address,omitempty"`
+	MinBetAmount      float64          `json:"min_bet_amount,omitempty" bson:"min_bet_amount,omitempty"`
+	Participants      []*JoinChallenge `json:"participants,omitempty" bson:"participants,omitempty"`
+	CreatedAt         time.Time        `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt         time.Time        `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type EscrowStatus string
