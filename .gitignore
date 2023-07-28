@@ -7,7 +7,7 @@
 main
 gin-bin
 
-.env
+# .env
 
 # exclude everything
 uploaded/*
