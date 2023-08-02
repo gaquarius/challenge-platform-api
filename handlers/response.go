@@ -113,13 +113,13 @@ func SuccessResponse(msg string, writer http.ResponseWriter) {
 	json.NewEncoder(writer).Encode(temp)
 }
 
-func SuccessResponseWithData(msg string, data interface{}, writer http.ResponseWriter) {
+func SuccessResponseWithData(msg string, Id interface{}, writer http.ResponseWriter) {
 	type errdata struct {
 		Statuscode int         `json:"status"`
 		Message    string      `json:"msg"`
-		Data       interface{} `json:"data"`
+		Id         interface{} `json:"id"`
 	}
-	temp := &errdata{Statuscode: 200, Message: msg, Data: data}
+	temp := &errdata{Statuscode: 200, Message: msg, Id: Id}
 
 	//Send header, status code and output to writer
 	writer.Header().Set("Content-Type", "application/json")
