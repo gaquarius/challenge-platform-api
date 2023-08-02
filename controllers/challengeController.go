@@ -102,7 +102,7 @@ var CreateChallenge = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 		return
 	}
 	res, _ := json.Marshal(result.InsertedID)
-	middlewares.SuccessResponse(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), rw)
+	middlewares.SuccessResponseWithData(`Inserted at `+strings.Replace(string(res), `"`, ``, 2), result.InsertedID, rw)
 })
 
 // GetChallenge -> Get a challenge by id

@@ -113,6 +113,20 @@ func SuccessResponse(msg string, writer http.ResponseWriter) {
 	json.NewEncoder(writer).Encode(temp)
 }
 
+func SuccessResponseWithData(msg string, data interface{}, writer http.ResponseWriter) {
+	type errdata struct {
+		Statuscode int         `json:"status"`
+		Message    string      `json:"msg"`
+		Data       interface{} `json:"data"`
+	}
+	temp := &errdata{Statuscode: 200, Message: msg, Data: data}
+
+	//Send header, status code and output to writer
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(temp)
+}
+
 // ErrorResponse -> error formatter
 func ErrorResponse(error string, writer http.ResponseWriter) {
 	type errdata struct {
