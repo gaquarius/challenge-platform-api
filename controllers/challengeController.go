@@ -377,34 +377,35 @@ var ChallengeWinner = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Requ
 
 	if checkChallengeWins {
 
-		if challenges.Goal == "distance" {
-			floatGoalThershold, err := strconv.ParseFloat(challenges.GoalThreshold, 32)
+		// if challenges.Goal == "distance" {
+		floatGoalThershold, err := strconv.ParseFloat(challenges.GoalThreshold, 32)
+		if err != nil {
+			middlewares.ServerErrResponse(err.Error(), rw)
+			return
+		}
+		for _, v := range steps {
+			floatUserDistance, err := strconv.ParseFloat(v.StepsDistance, 64)
 			if err != nil {
 				middlewares.ServerErrResponse(err.Error(), rw)
 				return
 			}
-			for _, v := range steps {
-				floatUserDistance, err := strconv.ParseFloat(v.StepsDistance, 64)
-				if err != nil {
-					middlewares.ServerErrResponse(err.Error(), rw)
-					return
-				}
-				if floatUserDistance > floatGoalThershold {
-					winnerRecord = append(winnerRecord, v)
-				}
-			}
-		} else if challenges.Goal == "count" {
-			intGoalThershold, err := strconv.ParseInt(challenges.GoalThreshold, 10, 64)
-			if err != nil {
-				middlewares.ServerErrResponse(err.Error(), rw)
-				return
-			}
-			for _, v := range steps {
-				if v.StepsCount > intGoalThershold {
-					winnerRecord = append(winnerRecord, v)
-				}
+			if floatUserDistance >= floatGoalThershold {
+				winnerRecord = append(winnerRecord, v)
 			}
 		}
+		// }
+		// else if challenges.Goal == "count" {
+		// 	intGoalThershold, err := strconv.ParseInt(challenges.GoalThreshold, 10, 64)
+		// 	if err != nil {
+		// 		middlewares.ServerErrResponse(err.Error(), rw)
+		// 		return
+		// 	}
+		// 	for _, v := range steps {
+		// 		if v.StepsCount > intGoalThershold {
+		// 			winnerRecord = append(winnerRecord, v)
+		// 		}
+		// 	}
+		// }
 
 		var totalAmount float64
 
