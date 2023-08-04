@@ -51,6 +51,8 @@ var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	toLowerCase := strings.ToLower(user.Username)
+	user.Username = toLowerCase
 	user.Password = passwordHash
 	result, err := collection.InsertOne(r.Context(), user)
 	if err != nil {
