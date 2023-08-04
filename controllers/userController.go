@@ -29,9 +29,10 @@ var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	toLowerCase := strings.ToLower(user.Username)
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
-	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: toLowerCase}}).Decode(&existingUser)
 	if err == nil {
 		middlewares.ErrorResponse("Username is already taken.", rw)
 		return
@@ -51,7 +52,6 @@ var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
-	toLowerCase := strings.ToLower(user.Username)
 	user.Username = toLowerCase
 	user.Password = passwordHash
 	result, err := collection.InsertOne(r.Context(), user)
@@ -71,9 +71,10 @@ var LoginUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	toLowerCase := strings.ToLower(user.Username)
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
-	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: toLowerCase}}).Decode(&existingUser)
 
 	if err != nil {
 		middlewares.ErrorResponse("User doesn't exist", rw)
