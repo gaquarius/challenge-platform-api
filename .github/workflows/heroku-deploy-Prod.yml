@@ -1,0 +1,51 @@
+name: Prod - Heroku Deploy
+
+on:
+   # Job Trigger automatically if any PR is closed for main branch
+   pull_request:
+    branches:
+      - dev
+    types: [ closed ]
+   # Enabled Manual Trigger
+   workflow_dispatch:
+jobs:
+
+  build-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+        
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        # In order:
+        # * Module download cache
+        # * Build cache (Linux)
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+          
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+    
+    - name: Deploy API -> Prod
+      uses: akhileshns/heroku-deploy@v3.12.12
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: "challenge-api"
+        heroku_email: ${{secrets.HEROKU_EMAIL}}
+        branch: dev
+#         env_file: .env.default 

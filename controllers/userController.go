@@ -9,11 +9,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/chattertechno/challenge-platform-api/db"
+	middlewares "github.com/chattertechno/challenge-platform-api/handlers"
+	"github.com/chattertechno/challenge-platform-api/models"
+	"github.com/chattertechno/challenge-platform-api/validators"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gaquarius/challenge-platform-api/db"
-	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
-	"github.com/gaquarius/challenge-platform-api/models"
-	"github.com/gaquarius/challenge-platform-api/validators"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,9 +29,10 @@ var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	toLowerCase := strings.ToLower(user.Username)
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
-	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: toLowerCase}}).Decode(&existingUser)
 	if err == nil {
 		middlewares.ErrorResponse("Username is already taken.", rw)
 		return
@@ -41,11 +42,17 @@ var RegisterUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request
 		middlewares.ErrorResponse("Identity is already in use.", rw)
 		return
 	}
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "mnemonic", Value: user.Mnemonic}}).Decode(&existingUser)
+	if err == nil {
+		middlewares.ErrorResponse("Mnemonic Invalid", rw)
+		return
+	}
 	passwordHash, err := middlewares.HashPassword(user.Password)
 	if err != nil {
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	user.Username = toLowerCase
 	user.Password = passwordHash
 	result, err := collection.InsertOne(r.Context(), user)
 	if err != nil {
@@ -64,9 +71,11 @@ var LoginUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		middlewares.ServerErrResponse(err.Error(), rw)
 		return
 	}
+	toLowerCase := strings.ToLower(user.Username)
 	collection := client.Database("challenge").Collection("users")
 	var existingUser models.User
-	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: user.Username}}).Decode(&existingUser)
+	err = collection.FindOne(r.Context(), bson.D{primitive.E{Key: "username", Value: toLowerCase}}).Decode(&existingUser)
+
 	if err != nil {
 		middlewares.ErrorResponse("User doesn't exist", rw)
 		return
@@ -76,7 +85,7 @@ var LoginUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		middlewares.ErrorResponse("Password doesn't match", rw)
 		return
 	}
-	token, err := middlewares.GenerateJWT(user.Username)
+	token, err := middlewares.GenerateJWT(toLowerCase, existingUser.Identity, existingUser.PrivateKey)
 	if err != nil {
 		middlewares.ErrorResponse("Failed to generate JWT", rw)
 		return
@@ -153,7 +162,7 @@ var UpdateUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	token, err := middlewares.GenerateJWT(newUser.Username)
+	token, err := middlewares.GenerateJWT(newUser.Username, user.Identity, user.PrivateKey)
 	if err != nil {
 		middlewares.ErrorResponse("Failed to generate JWT", rw)
 		return

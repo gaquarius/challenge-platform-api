@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gaquarius/challenge-platform-api/models"
+	"github.com/chattertechno/challenge-platform-api/models"
 )
 
 // AuthorizationResponse -> response authorize
@@ -80,6 +80,25 @@ func SuccessRespond(fields interface{}, writer http.ResponseWriter) {
 	json.NewEncoder(writer).Encode(temp)
 }
 
+// SuccessRespond -> response formatter
+func SuccessRespondWithCustomMessage(fields interface{}, msg string, writer http.ResponseWriter) {
+	_, err := json.Marshal(fields)
+	type data struct {
+		Person     interface{} `json:"data"`
+		Statuscode int         `json:"status"`
+		Message    string      `json:"msg"`
+	}
+	temp := &data{Person: fields, Statuscode: 200, Message: msg}
+	if err != nil {
+		ServerErrResponse(err.Error(), writer)
+	}
+
+	//Send header, status code and output to writer
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(temp)
+}
+
 // SuccessResponse -> success formatter
 func SuccessResponse(msg string, writer http.ResponseWriter) {
 	type errdata struct {
@@ -87,6 +106,20 @@ func SuccessResponse(msg string, writer http.ResponseWriter) {
 		Message    string `json:"msg"`
 	}
 	temp := &errdata{Statuscode: 200, Message: msg}
+
+	//Send header, status code and output to writer
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(temp)
+}
+
+func SuccessResponseWithData(msg string, Id interface{}, writer http.ResponseWriter) {
+	type errdata struct {
+		Statuscode int         `json:"status"`
+		Message    string      `json:"msg"`
+		Id         interface{} `json:"id"`
+	}
+	temp := &errdata{Statuscode: 200, Message: msg, Id: Id}
 
 	//Send header, status code and output to writer
 	writer.Header().Set("Content-Type", "application/json")
@@ -105,6 +138,20 @@ func ErrorResponse(error string, writer http.ResponseWriter) {
 	//Send header, status code and output to writer
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(writer).Encode(temp)
+}
+
+// ForbiddenResponse -> error formatter
+func ForbiddenResponse(msg string, writer http.ResponseWriter) {
+	type errdata struct {
+		Statuscode int    `json:"status"`
+		Message    string `json:"msg"`
+	}
+	temp := &errdata{Statuscode: http.StatusForbidden, Message: msg}
+
+	//Send header, status code and output to writer
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusUnauthorized)
 	json.NewEncoder(writer).Encode(temp)
 }
 

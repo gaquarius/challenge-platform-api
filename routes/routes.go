@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gaquarius/challenge-platform-api/controllers"
-	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
+	"github.com/chattertechno/challenge-platform-api/controllers"
+	middlewares "github.com/chattertechno/challenge-platform-api/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -32,6 +32,21 @@ func Routes() *mux.Router {
 	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.GetChallenge)).Methods("GET")
 	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.UpdateChallenge)).Methods("PUT")
 	challenge.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.DeleteChallenge)).Methods("DELETE")
+	challenge.HandleFunc("/join/", middlewares.IsAuthorized(controllers.JoinChallenge)).Methods("POST")
+	challenge.HandleFunc("/{id}/unjoin/", middlewares.IsAuthorized(controllers.UnJoinChallenge)).Methods("POST")
+	challenge.HandleFunc("/{id}/winner/", controllers.ChallengeWinner).Methods("GET")
+
+	challenge.HandleFunc("/finished/", controllers.FinishedChallenges).Methods("GET")
+	challenge.HandleFunc("/update/flag/{id}", controllers.UpdateFlag).Methods("PUT")
+
+	// Challenge bet routes
+	bet := challenge.PathPrefix("/bet").Subrouter()
+	bet.HandleFunc("/add/", middlewares.IsAuthorized(controllers.AddBetChallenge)).Methods("POST")
+	bet.HandleFunc("/{id}", middlewares.IsAuthorized(controllers.GetAllBetsForChallenge)).Methods("GET")
+
+	// User steps routes
+	steps := challenge.PathPrefix("/user/steps").Subrouter()
+	steps.HandleFunc("/add/", middlewares.IsAuthorized(controllers.AddStepsChallenge)).Methods("PUT")
 
 	api.HandleFunc("/person", controllers.CreatePersonEndpoint).Methods("POST")
 	api.HandleFunc("/people", middlewares.IsAuthorized(controllers.GetPeopleEndpoint)).Methods("GET")

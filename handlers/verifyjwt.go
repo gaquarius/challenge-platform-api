@@ -13,7 +13,9 @@ import (
 var JWT_SECRET = []byte(DotEnvVariable("JWT_SECRET"))
 
 type Claims struct {
-	Username string `json:"username"`
+	Username   string `json:"username"`
+	Identity   string `json:"identity"`
+	PrivateKey string `json:"private_key"`
 	jwt.StandardClaims
 }
 
@@ -21,6 +23,7 @@ type Claims struct {
 func IsAuthorized(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+		//fmt.Println(authHeader)
 
 		if len(authHeader) != 2 {
 			AuthorizationResponse("Malformed JWT token", w)
@@ -44,17 +47,20 @@ func IsAuthorized(next http.Handler) http.HandlerFunc {
 }
 
 // GenerateJWT -> generate jwt
-func GenerateJWT(username string) (string, error) {
+func GenerateJWT(username, identity, privateKey string) (string, error) {
 	claims := &Claims{
-		Username: username,
+		Username:   username,
+		Identity:   identity,
+		PrivateKey: privateKey,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(2 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(JWT_SECRET)
+	//fmt.Println(`this is it`, tokenString)
 
 	if err != nil {
 		return "", err

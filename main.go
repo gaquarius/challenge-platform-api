@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	middlewares "github.com/chattertechno/challenge-platform-api/handlers"
+	"github.com/chattertechno/challenge-platform-api/routes"
 	"github.com/fatih/color"
-	middlewares "github.com/gaquarius/challenge-platform-api/handlers"
-	"github.com/gaquarius/challenge-platform-api/routes"
 	"github.com/rs/cors"
 )
 

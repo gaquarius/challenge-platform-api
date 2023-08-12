@@ -1,4 +1,4 @@
-module github.com/gaquarius/challenge-platform-api
+module github.com/chattertechno/challenge-platform-api
 
 // +heroku goVersion go1.16
 go 1.15
