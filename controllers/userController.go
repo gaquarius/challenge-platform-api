@@ -85,7 +85,7 @@ var LoginUser = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		middlewares.ErrorResponse("Password doesn't match", rw)
 		return
 	}
-	token, err := middlewares.GenerateJWT(user.Username, existingUser.Identity, existingUser.PrivateKey)
+	token, err := middlewares.GenerateJWT(toLowerCase, existingUser.Identity, existingUser.PrivateKey)
 	if err != nil {
 		middlewares.ErrorResponse("Failed to generate JWT", rw)
 		return
